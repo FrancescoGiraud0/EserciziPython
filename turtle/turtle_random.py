@@ -1,3 +1,9 @@
+#Giraudo Francesco
+#Classe: 4^A ROB
+#Data: 01/02/2019
+#Programma che fa muovere una turtle per un numero determinato di movimenti
+#(chiesto in input all'utente prima dell'esecuzione) facendo ruotare quest'ultima
+#a destra o a sinistra casualmente utilizzando il modulo random
 import turtle
 import random
 

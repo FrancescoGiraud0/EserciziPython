@@ -1,3 +1,8 @@
+#Giraudo Francesco
+#Classe: 4^A ROB
+#Data: 01/02/2019
+#Programma per generare "spirale" con turtle tramite calcolo di n numeri
+#della successione di Fibonacci
 import turtle
 
 #definizione numeri sequenza di fibonacci
