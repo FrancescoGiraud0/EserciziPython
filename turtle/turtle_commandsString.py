@@ -30,6 +30,7 @@ for letter in commandsString:
             #Chiamata di funzioni di rotazione
             #Rotazione a sinistra o a destra di 90 gradi
             commandsDictionary[letter](90)
+        #Gestione dell'eccezione(carattere key non definito nel dizionario)
         except KeyError:
             #Stampa errore
             print("> '%s' non è un comando definito" %letter)
