@@ -8,6 +8,9 @@ import turtle
 #Imposta velocità turtle
 turtle.speed(1)
 
+#Imposta passo turtle
+step = 50
+
 #Dizionario in cui sono definite le funzioni di movimento della turtle
 #N.B. se si usano le parentesi all'interno del dizionario le funzioni verranno chiamate
 commandsDictionary = {"f":turtle.forward, "b": turtle.backward, "r":turtle.right, "l":turtle.left}
@@ -26,7 +29,7 @@ for letter in commandsString:
     #perchè utilizzano attributi diversi
     if letter == "f" or letter == "b":
         #Chiamata funzioni di movimento avanti o indietro di 50 unità
-        commandsDictionary[letter](50)
+        commandsDictionary[letter](step)
     else:
         #Verifica che la chiave inserita esista nel dizionario
         try:
