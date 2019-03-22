@@ -23,13 +23,13 @@ def disegnaTraguardo():
 
 #Funzione che in base al valore del contatore passato come parametro posiziona la turtle
 #dividendo equamente lo spazio in base al numero di turtle in gara
-def posizionaTurtle(i_turtle):
+def posizionaTurtle(i_turtle, turtle):
     #Calcolo y posizione turtle (se indice maggiore della metà del numero di turtle calcola in negativo)
     #tutto moltiplicato per il rapporto tra la metà che le turtle andranno ad occupare di spazio equamente
     #divisa in parti uguali in base al numero di turtle/2.
     y = float(turtlesNumber//2 - i_turtle) * (DIM_Y/2) / (turtlesNumber/2)
     #Vai a punto calcolato (x = posizione partenza, y = posizione calcolata)
-    turtlesList[i_turtle].goto(-((DIM_X/2)-10), y)
+    turtle.goto(-((DIM_X/2)-10), y)
 
 #Massimo numero di turtle
 MAX_TURTLES = 20
@@ -53,6 +53,7 @@ while turtlesNumber<=0 or turtlesNumber>MAX_TURTLES:
         #Eccezione per valori inseriti diversi da un numero intero
         print("\n> ERRORE! Devi inserire un valore intero")
 
+print("\n> Posizionamento turtle in partenza...")
 #Setta la dimensione della finestra
 t.setup(DIM_X, DIM_Y+40)
 #Aggiunge la possibilità di utilizzare valore RGB per cambiare i colori 
@@ -62,24 +63,26 @@ disegnaTraguardo()
 
 #Cicla per il numero di tartarughe in gara
 for i in range(0,turtlesNumber):
-    #Crea una nuova turtle e aggiungila alla lista
-    turtlesList.append(t.Turtle())
+    #Crea una nuova turtle
+    newTurtle = t.Turtle()
     #Genera casualmente tre valori R G B utilizzando random.randrange() in modo da creare un colore casuale
     r = random.randrange(0, 255)
     g = random.randrange(0, 255)
     b = random.randrange(0, 255)
     #Colora la turtle con il colore RGB appena generato
-    turtlesList[i].color((b,g,r))
+    newTurtle.color((b,g,r))
     #Imposta velocità turtle a 0 (il massimo)
-    turtlesList[i].speed(0)
+    newTurtle.speed(0)
     #Alza la penna in modo da non lasciare nessun segno durante lo spostamento per andare in posizione di partenza
-    turtlesList[i].penup()
+    newTurtle.penup()
     #Chiama funzione per spostare la turtle in posizione di partenza
-    posizionaTurtle(i)
+    posizionaTurtle(i, newTurtle)
     #Abbassa nuovamente la penna
-    turtlesList[i].pendown()
+    newTurtle.pendown()
     #Imposta la velocità a 2
-    turtlesList[i].speed(2)
+    newTurtle.speed(2)
+    #Aggiungi turtle creata alla lista
+    turtlesList.append(newTurtle)
 
 #Stampa conto alla rovescia gara
 print("\n", end = "\r")
