@@ -7,7 +7,10 @@ def indexMinimo(distanceList, notVisitedList):
 
     minimo = min(distanceNotVisited)
     
-    return distanceNotVisited.index(minimo)
+    if not minimo==math.inf:
+        return distanceNotVisited.index(minimo)
+    
+    return -1
 
 def dijkstra(indexNodoMin, peso, matGrafo, **other):
     if peso == 0:
@@ -30,12 +33,16 @@ def dijkstra(indexNodoMin, peso, matGrafo, **other):
 
     indexNextNode = indexMinimo(distanceList, notVisitedList)
 
-    return dijkstra(indexNextNode, distanceList[indexNextNode], matGrafo, distanceList=distanceList, notVisitedList=notVisitedList)
+    if not indexNextNode==-1:
+        return dijkstra(indexNextNode, distanceList[indexNextNode], matGrafo, distanceList=distanceList, notVisitedList=notVisitedList)
+    
+    return distanceList
 
+        # 0,1,2,3,4,5,6,7
 grafo = [[0,1,4,0,0,0,0,0],
          [1,0,0,0,0,2,0,0],
          [4,0,0,5,0,0,0,0],
-         [0,0,5,0,1,3,0,0],
+         [0,0,5,0,0,3,0,0],
          [0,0,0,1,0,0,2,3],
          [0,2,0,3,0,0,0,0],
          [0,0,0,0,2,0,0,4],
