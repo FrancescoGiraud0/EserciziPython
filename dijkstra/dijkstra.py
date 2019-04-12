@@ -1,48 +1,48 @@
 import math
 
-def indexMinimo(distanceList, notVisitedList):
-    distanceNotVisited = [math.inf]*len(distanceList)
+def indexMinimo(lblList, notVisitedList):
+    infiniteList = [math.inf]*len(lblList)
     for i in notVisitedList:
-        distanceNotVisited[i] = distanceList[i]
+        infiniteList[i] = lblList[i]
 
-    minimo = min(distanceNotVisited)
+    minimo = min(infiniteList)
     
     if not minimo==math.inf:
-        return distanceNotVisited.index(minimo)
+        return infiniteList.index(minimo)
     
     return -1
 
-def dijkstra(indexNodoMin, peso, matGrafo, **other):
+def dijkstra(currentNode, peso, graph, **other):
     if peso == 0:
-        distanceList = [math.inf]*len(matGrafo)
-        notVisitedList = [a for a in range(0,len(matGrafo))]
+        lblList = [math.inf]*len(graph)
+        notVisitedList = [a for a in range(0,len(graph))]
     else:
-        distanceList = other.get("distanceList")
+        lblList = other.get("lblList")
         notVisitedList = other.get("notVisitedList")
 
-    distanceList[indexNodoMin] = peso
-    notVisitedList.remove(indexNodoMin)
+    lblList[currentNode] = peso
+    notVisitedList.remove(currentNode)
 
     if len(notVisitedList)==0:
-        return distanceList
+        return lblList
     
-    for i_nodo in notVisitedList:
-        if matGrafo[indexNodoMin][i_nodo]!=0:
-            if (matGrafo[indexNodoMin][i_nodo]+peso)<distanceList[i_nodo]:
-                distanceList[i_nodo] = matGrafo[indexNodoMin][i_nodo]+peso
+    for node, weight in enumerate(graph[currentNode]):
+        if weight!=0:
+            if (node+peso)<lblList[node]:
+                lblList[node] = weight+peso
 
-    indexNextNode = indexMinimo(distanceList, notVisitedList)
+    indexNextNode = indexMinimo(lblList, notVisitedList)
 
     if not indexNextNode==-1:
-        return dijkstra(indexNextNode, distanceList[indexNextNode], matGrafo, distanceList=distanceList, notVisitedList=notVisitedList)
+        return dijkstra(indexNextNode, lblList[indexNextNode], graph, lblList=lblList, notVisitedList=notVisitedList)
     
-    return distanceList
+    return lblList
 
         # 0,1,2,3,4,5,6,7
 grafo = [[0,1,4,0,0,0,0,0],
          [1,0,0,0,0,2,0,0],
          [4,0,0,5,0,0,0,0],
-         [0,0,5,0,0,3,0,0],
+         [0,0,5,0,1,3,0,0],
          [0,0,0,1,0,0,2,3],
          [0,2,0,3,0,0,0,0],
          [0,0,0,0,2,0,0,4],
