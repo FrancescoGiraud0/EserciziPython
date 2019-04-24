@@ -1,52 +1,39 @@
 import math
 
-def indexMinimo(lblList, notVisitedList):
-    infiniteList = [math.inf]*len(lblList)
-    for i in notVisitedList:
-        infiniteList[i] = lblList[i]
+def indexMin(label_list, notVisited_list):
+    infinite_list = [math.inf]*len(label_list)
+    for i in notVisited_list:
+        infinite_list[i] = label_list[i]
 
-    minimo = min(infiniteList)
+    minimum = min(infinite_list)
     
-    if not minimo==math.inf:
-        return infiniteList.index(minimo)
+    if not minimum==math.inf:
+        return infinite_list.index(minimum)
     
     return -1
 
-def dijkstra(currentNode, peso, graph, **other):
-    if peso == 0:
-        lblList = [math.inf]*len(graph)
-        notVisitedList = [a for a in range(0,len(graph))]
+def dijkstra(currentNode, previous_weight, graph, **other):
+    if previous_weight == 0:
+        label_list = [math.inf]*len(graph)
+        notVisited_list = [a for a in range(0,len(graph))]
     else:
-        lblList = other.get("lblList")
-        notVisitedList = other.get("notVisitedList")
+        label_list = other.get("label_list")
+        notVisited_list = other.get("notVisited_list")
 
-    lblList[currentNode] = peso
-    notVisitedList.remove(currentNode)
+    label_list[currentNode] = previous_weight
+    notVisited_list.remove(currentNode)
 
-    if len(notVisitedList)==0:
-        return lblList
+    if len(notVisited_list)==0:
+        return label_list
     
     for node, weight in enumerate(graph[currentNode]):
         if weight!=0:
-            if (node+peso)<lblList[node]:
-                lblList[node] = weight+peso
+            if (node+weight)<label_list[node]:
+                label_list[node] = previous_weight + weight
 
-    indexNextNode = indexMinimo(lblList, notVisitedList)
+    indexNextNode = indexMin(label_list, notVisited_list)
 
     if not indexNextNode==-1:
-        return dijkstra(indexNextNode, lblList[indexNextNode], graph, lblList=lblList, notVisitedList=notVisitedList)
+        return dijkstra(indexNextNode, label_list[indexNextNode], graph, label_list=label_list, notVisited_list=notVisited_list)
     
-    return lblList
-
-        # 0,1,2,3,4,5,6,7
-grafo = [[0,1,4,0,0,0,0,0],
-         [1,0,0,0,0,2,0,0],
-         [4,0,0,5,0,0,0,0],
-         [0,0,5,0,1,3,0,0],
-         [0,0,0,1,0,0,2,3],
-         [0,2,0,3,0,0,0,0],
-         [0,0,0,0,2,0,0,4],
-         [0,0,0,0,3,0,4,0]]
-
-for i in range(0,len(grafo)):
-    print( "Nodo " + str(i) + ": " + str(dijkstra(i,0,grafo)) )
+    return label_list
