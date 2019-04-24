@@ -127,10 +127,16 @@ floor_dim = 4 #int(input("> Inserire dimensione pavimento: "))
 obs_list = [(0,0),(0,1),(0,2),(0,3),(1,0),(1,3),(2,1),(3,3)]
 floor_mat = floorMatrixCreator(floor_dim, obs_list)
 
+#print floor matrix
+for tile_list in floor_mat:
+    print(" ")
+    for tile in tile_list:
+        print("%3s" %tile, end=" ")
+
 print("\n")
 
 adj_dict = adjDictCreator(floor_mat)
-print("Adjacency dictionary: " + str(adj_dict))
+print("\nAdjacency dictionary: " + str(adj_dict))
 adj_mat = convertToAdjMatrix(adj_dict)
 
 #create a networkx.Graph() from a dict of lists
