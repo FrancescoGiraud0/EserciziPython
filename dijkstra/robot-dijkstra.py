@@ -135,8 +135,6 @@ adj_mat = convertToAdjMatrix(adj_dict)
 
 #create a networkx.Graph() from a dict of lists
 graph = nx.convert.from_dict_of_lists(adj_dict)
-#create a position dictionary for graph draw
-pos_dict = {}
 
 start_tile = int(input("\n> Start tile: "))
 target_tile = int(input("\n> Target tile: "))
@@ -145,6 +143,9 @@ dist_list = dijkstra(start_tile, 0, adj_mat)
 
 print("\n> Shortest paths from %d to others tile: " %start_tile, dist_list)
 print("\n> Shortest path from %d to %d: %d" %(start_tile, target_tile, dist_list[target_tile]))
+
+#create a position dictionary for graph draw
+pos_dict = {}
 
 for row,tile_list in enumerate(floor_mat):
     for col,tile in enumerate(tile_list):
