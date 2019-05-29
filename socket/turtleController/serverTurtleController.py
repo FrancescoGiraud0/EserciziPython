@@ -1,9 +1,13 @@
 import socket
 import turtle
 
+CLOSE_CONNECTION_STRING = 'E'
 STEP = 10
 
-commandsDictionary = {'F':turtle.forward, 'B': turtle.backward, 'R':turtle.right, 'L':turtle.left}
+commandsDictionary = {'F': turtle.forward,
+                      'B': turtle.backward,
+                      'R': turtle.right,
+                      'L': turtle.left}
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -18,21 +22,27 @@ print("> Conesso con ", clientAddress)
 turtle.speed(1)
 
 while(True):
-    commandString = connection.recv(4096).decode()
+    # Riceve bytes che converte in stringa di caratteri maiuscoli
+    commandString = connection.recv(4096).decode().upper()
 
-    if(commandString == 'E'):
+    print("> Ricevuto: ", commandString)
+
+    if(commandString == CLOSE_CONNECTION_STRING):
         break
 
     for commandChar in commandString:
         if commandChar == 'F' or commandChar == 'B':
-            commandsDictionary[commandChar](STEP)
+            try:
+                commandsDictionary[commandChar](STEP)
+            except KeyError:
+                print("\n> '%s' non è un comando definito" % commandChar)
         else:
             try:
                 commandsDictionary[commandChar](90)
-            except:
+            except KeyError:
                 print("\n> '%s' non è un comando definito" % commandChar)
 
-    coordinateTurtle = '%f, %f' % (turtle.xcor(), turtle.ycor())
+    coordinateTurtle = '%d, %d' % (turtle.xcor(), turtle.ycor())
 
     connection.sendall(coordinateTurtle.encode())
 
