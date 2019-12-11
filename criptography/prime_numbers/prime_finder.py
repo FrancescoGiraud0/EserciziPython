@@ -1,6 +1,4 @@
 import numpy as np
-n = 9
-
 
 def isPrime(n):
     for p in range(2, int(np.sqrt(n)) + 1):
@@ -28,3 +26,7 @@ def nthPrime(n):
         return prime_number
 
     return None
+
+if __name__ == "__main__":
+    n = 11
+    print(nthPrime(n))
