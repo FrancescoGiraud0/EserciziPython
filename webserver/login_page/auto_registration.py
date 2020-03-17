@@ -4,8 +4,9 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 URL = "http://127.0.0.1:5000/register"
 IP  = "127.0.0.1"
+
 method = 'POST'
-username = 'luigi'
+username = 'Test'
 passw = '0000'
 
 s.connect((IP, 5000))

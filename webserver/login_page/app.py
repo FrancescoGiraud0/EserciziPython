@@ -1,5 +1,6 @@
 '''
-Francesco Giraudo 5AROB
+Francesco Giraudo
+Classe: 5AROB
 '''
 
 from flask import Flask, render_template, redirect, url_for, request
