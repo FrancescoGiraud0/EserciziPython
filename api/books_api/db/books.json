@@ -1,0 +1,44 @@
+[
+    {
+    "id" : 1,
+    "title" : "Storia della tua vita",
+    "author" : "Ted Chiang",
+    "year_published" : 2002
+    },
+    {
+    "id": 2,
+    "title":"Respiro",
+    "author":"Ted Chiang",
+    "year_published": 2019
+    },
+    {
+    "id": 3,
+    "title" : "Antifragile",
+    "author" : "Nassim Nicholas Taleb",
+    "year_published" : 2019 
+    },
+    {
+    "id": 4,
+    "title" : "Social Physics",
+    "author" : "Alex Pentland",
+    "year_published" : 2014
+    },
+    {
+    "id": 5,
+    "title" : "The Black Box Society",
+    "author" : "Frank Pasquale",
+    "year_published" : 2015
+    },
+    {
+    "id": 6,
+    "title" : "Sapiens",
+    "author" : "Yual Noah Harari",
+    "year_published" : 2011
+    },
+    {
+    "id": 7,
+    "title" : "Guida galattica per gli autostoppisti",
+    "author" : "Douglas Adams",
+    "year_published" : 1979
+    }
+]
