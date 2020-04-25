@@ -61,6 +61,8 @@ def api_author():
     else:
         return 'Error: No author field provided. Please retry adding the author field.'
 
+    print(request.args)
+
     conn = sqlite.connect('./db/books.db')
     cursor = conn.cursor()
 
@@ -73,5 +75,34 @@ def api_author():
     result = convert_to_dict(books)
 
     return jsonify(result)
+
+@app.route('/api/v1/resources/books/new', methods=['GET'])
+def new_book():
+    if all( (attribute in request.args) for attribute in ['author', 'title', 'year_published']):
+        author = request.args['author']
+        title  = request.args['title']
+        try:
+            year_published = int(request.args['year_published'])
+        except TypeError:
+            return 'Error: year_published must be an integer. Please retry.'
+        
+    else:
+        return 'Error: Not provided every field. Please retry providing title, author and year_published.'
+    
+    print(author, title, year_published)
+
+    conn = sqlite.connect('./db/books.db')
+    cursor = conn.cursor()
+
+    cursor.execute(f"SELECT count(*) FROM Books WHERE title='{title}' AND author='{author}' AND year_published={year_published}")
+    already_present = cursor.fetchone()[0]
+
+    if not already_present:
+        cursor.execute(f"INSERT INTO Books(title, author, year_published) VALUES ('{title}', '{author}', {year_published})")
+        conn.commit()
+    cursor.close()
+    conn.close()
+
+    return 'Book added succesfully!' if not already_present else 'Book already present in the database.'
 
 app.run()
