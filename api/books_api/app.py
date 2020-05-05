@@ -95,7 +95,7 @@ def new_book():
     cursor = conn.cursor()
 
     cursor.execute(f"SELECT count(*) FROM Books WHERE title='{title}' AND author='{author}' AND year_published={year_published}")
-    already_present = cursor.fetchone()[0]
+    already_present = bool(cursor.fetchone()[0])
 
     if not already_present:
         cursor.execute(f"INSERT INTO Books(title, author, year_published) VALUES ('{title}', '{author}', {year_published})")
