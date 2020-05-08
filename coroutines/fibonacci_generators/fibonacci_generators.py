@@ -1,3 +1,10 @@
+'''
+Giraudo Francesco
+Classe 5A ROB
+
+Fibonacci function using generators and yield statement.
+'''
+
 def fib(limit):
     a, b = 0, 1
 
@@ -5,11 +12,10 @@ def fib(limit):
         yield a 
         a, b = b, a + b 
 
-x = fib(30)
+f = fib(50)
 
-print(x.__next__())
-print(x.__next__())
-print(x.__next__())
+fib_list = [next(f) for _ in range(10)]
 
-for i in x:
-    print(i)
+print(fib_list)
+
+f.close()
