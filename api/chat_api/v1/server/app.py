@@ -19,7 +19,7 @@ def get_users_list():
 
     Il client farà una richiesta HTTP di tipo get con il seguente formato:
 
-    http://IP_SERVER:PORTA/api/v1/send
+    http://IP_SERVER:PORTA/api/v1/user_list
 
     Riceverà quindi come risposta un JSON con il seguente formato:
     
