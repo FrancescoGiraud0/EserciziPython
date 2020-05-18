@@ -5,32 +5,35 @@ Classe 5A ROB
 HTTP server chat.
 '''
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_file, make_response
+from werkzeug.utils import secure_filename
 import sqlite3 as sqlite
 import datetime
+import os
 
 app = Flask(__name__)
 app.config['DEBUG'] = True
+app.config['UPLOAD_FOLDER'] = './media/'
 
-@app.route('/api/v1/user_list', methods=['GET'])
+@app.route('/api/v1/user_list', methods=['GET', 'POST'])
 def get_users_list():
     """
     Metodo per l'invio di tutti gli utenti salvati nel db in formato JSON.
 
     Il client farà una richiesta HTTP di tipo get con il seguente formato:
 
-    http://IP_SERVER:PORTA/api/v1/send
+    http://IP_SERVER:PORTA/api/v1/user_list
 
     Riceverà quindi come risposta un JSON con il seguente formato:
     
-    { 
+    {
       datetime : %Y-%m-%d %H:%M:%S,
       status : XXX,
       description : XXX,
       elaboration_time : XXX,
       count: XXX,
       results: [
-                    { 
+                    {
                         id : XXX,
                         name : XXX,
                         surname : XXX,
@@ -46,7 +49,8 @@ def get_users_list():
                 'description' : None,
                 'elaboration_time' : 0.0,
                 'count' : None,
-                'results' : []}
+                'results' : []
+             }
 
     try:
         conn = sqlite.connect('./db/chat_schema.db')
@@ -86,19 +90,38 @@ def get_users_list():
     return jsonify(answer)
 
 
-@app.route('/api/v1/send', methods=['GET'])
+@app.route('/api/v1/send', methods=['GET', 'POST'])
 def send_msg():
     '''
     Metodo per l'invio dei messaggi.
-    Il mittente farà una richiesta HTTP GET al server con una query string avente
+    Il mittente farà una richiesta HTTP GET o POST al server con una query string avente
     il formato:
     
-    http://IP_SERVER:PORTA/api/v1/send?ID_DEST=XXX&ID_MITT=XXX&text=XXX&time=XXX
+    http://IP_SERVER:PORTA/api/v1/send?ID_DEST=XXX&ID_MITT=XXX&text=XXX
 
-    Quindi, se non verificano errori, verrà restituito un json il seguente
-    formato:
-    { 
-      datetime : XXX
+    Nel body POST è possibile inserire il file, in questo caso il campo text della query
+    string non sarà obbligatorio, ma verrà salvato il nome del file con il seguente formato
+    nel campo "message" del database:
+
+    ID_MITT_ID_DEST_[NOMEFILE+ESTENSIONE]
+
+    I files vengono salvati nella cartella media avente la seguente struttura di
+    sottocartelle:
+    
+    +---- chat_api
+        |
+        +---- v1
+            |
+            +---- server
+                |
+                +---- media
+                    |
+                    +--- XXX -> (XXX = id utente del mittente)
+
+    Quindi, se non verificano errori, verrà restituito un json il seguente formato:
+
+    {
+      datetime : XXX,
       status : XXX,
       description : XXX,
       elaboration_time : XXX
@@ -109,10 +132,11 @@ def send_msg():
 
     answer = {  'datetime' : None,
                 'status' : None,
+                'file_loc' : None,
                 'description' : None,
                 'elaboration_time' : 0.0 }
 
-    args_list = ['ID_DEST', 'ID_MITT', 'text', 'time']
+    args_list = ['ID_DEST', 'ID_MITT']
     
     # Verifica se ci sono tutti i parametri necessari nella query string
     if all((True if arg in request.args else False) for arg in args_list):
@@ -133,8 +157,9 @@ def send_msg():
             return jsonify(answer)
         
         try:
-            text = request.args['text']
-            if len(text) > 250 or len(text)<=0:
+            text = request.args['text'] if 'text' in request.args else ''
+            if (len(text)>250 or len(text)<=0) and request.method=='GET':
+                # Errore se non definito text e non caricato file
                 answer['status'] =  'Length Error'
                 answer['description'] = 'Error: Text message is too long or not defined.'
 
@@ -158,7 +183,7 @@ def send_msg():
             return jsonify(answer)
 
         try:
-            timestamp = datetime.datetime.strptime(request.args['time'], '%Y-%m-%d %H:%M:%S')
+            timestamp = start_time.strftime('%Y-%m-%d %H:%M:%S')
         except:
             answer['status'] =  'Timestamp Error'
             answer['description'] = 'Error: Incorrect timestamp format (it must be %Y-%m-%d %H:%M:%S).'
@@ -171,14 +196,55 @@ def send_msg():
 
             return jsonify(answer)
 
+        # Gestione salvataggio files
+        try:
+            if request.method == 'POST':
+                msg_type = 'file'
+
+                f = request.files['file']
+
+                file_name = f.filename.split('/')[-1]
+
+                file_name = secure_filename(f'{id_mitt}_{id_dest}_{secure_filename(file_name)}')
+                file_dir = os.path.join(str(app.config['UPLOAD_FOLDER']), str(id_mitt))
+
+                if not os.path.isdir(file_dir):
+                    os.makedirs(file_dir)
+                
+                text = os.path.join(file_dir, file_name)
+
+                f.save(text)
+
+                answer['file_loc'] = text
+
+            elif request.method == 'GET':
+                msg_type = 'text'
+
+            elif request.method == 'GET':
+                msg_type = 'text'
+
+        except:
+            answer['status'] =  'Request Error'
+            answer['description'] = 'Error: Incorrect HTTP POST request.'
+
+            end_time = datetime.datetime.now()
+            delta = end_time - start_time
+
+            answer['datetime'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
+            answer['elaboration_time'] = delta.total_seconds()
+
+            return jsonify(answer)
+
+
         # Salvataggio messaggio nel database
         try:
-            query = f''' INSERT INTO messages(msg_timestamp, id_dest, id_mitt, message, len) VALUES (
-                        '{timestamp.strftime('%Y-%m-%d %H:%M:%S')}', 
+            query = f''' INSERT INTO messages(msg_timestamp, id_dest, id_mitt, message, len, type) VALUES (
+                        '{timestamp}', 
                         {id_dest}, 
                         {id_mitt}, 
                         '{text}', 
-                        {len(text)}) ;'''
+                        {len(text)},
+                        '{msg_type}' );'''
 
             conn = sqlite.connect('./db/chat_schema.db')
             cursor = conn.cursor()
@@ -226,7 +292,7 @@ def send_msg():
 
     return jsonify(answer)
 
-@app.route('/api/v1/receive', methods=['GET'])
+@app.route('/api/v1/receive', methods=['GET', 'POST'])
 def receive_msg():
     '''
     Metodo per la ricezione dei messaggi.
@@ -319,24 +385,24 @@ def receive_msg():
 
     if exist(id_list):
         results = []
-        #try:
-        results = req_messages(id_dest, id_mitt=id_mitt,date_from=date_from, date_to=date_to, size=size)
+        try:
+            results = req_messages(id_dest, id_mitt=id_mitt,date_from=date_from, date_to=date_to, size=size)
 
-        answer['count'] = len(results)
-        answer['date_from'] = results[-1]['timestamp'] if answer['count']>0 else None
-        answer['date_to'] = results[0]['timestamp'] if answer['count']>0 else None
-        answer['results'] = results
+            answer['count'] = len(results)
+            answer['date_from'] = results[-1]['timestamp'] if answer['count']>0 else None
+            answer['date_to'] = results[0]['timestamp'] if answer['count']>0 else None
+            answer['results'] = results
 
-        answer['status'] = 'OK'
-        answer['description'] = 'Messages received successfully.'
+            answer['status'] = 'OK'
+            answer['description'] = 'Messages received successfully.'
 
-        end_time = datetime.datetime.now()
-        delta = end_time - start_time
+            end_time = datetime.datetime.now()
+            delta = end_time - start_time
 
-        answer['datetime'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
-        answer['elaboration_time'] = delta.total_seconds()
+            answer['datetime'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
+            answer['elaboration_time'] = delta.total_seconds()
 
-        """except:
+        except:
             answer['status'] = 'DB ERROR'
             answer['description'] = 'Error: Error with the database or wrong query.'
 
@@ -344,7 +410,8 @@ def receive_msg():
             delta = end_time - start_time
 
             answer['datetime'] = end_time.strftime('%Y-%m-%d %H:%M:%S')
-            answer['elaboration_time'] = delta.total_seconds()"""
+            answer['elaboration_time'] = delta.total_seconds()
+
     else:
         answer['status'] = 'ID Not Exist ERROR'
         answer['description'] = 'Error: ID_DEST or ID_MITT does not exist.'
@@ -356,6 +423,16 @@ def receive_msg():
         answer['elaboration_time'] = delta.total_seconds()
 
     return jsonify(answer)
+
+@app.route('/api/v1/file/<id>/<file_name>')
+def request_file(id, file_name):
+
+    path = os.path.join(app.config['UPLOAD_FOLDER'], id, file_name)
+
+    if os.path.isfile(path):
+        return send_file(path)
+    else:
+        return make_response( jsonify({'description' : 'File not found'}), 404)
 
 def req_messages(id_dest, id_mitt=None, date_from=None, date_to=None, size=None):
     conn = sqlite.connect('./db/chat_schema.db')
@@ -403,7 +480,6 @@ WHERE m.id_dest = {id_dest}\n AND received = 0\n'''
     conn.close()
 
     return results
-
 
 def convert_messages_to_dict(messages):
     msg_list = [
@@ -461,5 +537,9 @@ def exist(users):
         res = False
     
     return res
+
+# Creazione della cartella per il salvataggio dei file se non esistente
+if not os.path.isdir(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 app.run()
